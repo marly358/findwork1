@@ -7,8 +7,11 @@ from .serializers import CandidatoSerializer
 
 
 # GET - Listar todos los perfiles
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def listar_perfiles(request):
+
+    if request.method == 'POST':
+        return crear_perfil(request)
 
     candidatos = Candidato.objects.all()
 
@@ -18,8 +21,17 @@ def listar_perfiles(request):
 
 
 # GET - Obtener un perfil por ID
-@api_view(['GET'])
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def obtener_perfil(request, id):
+
+    if request.method == 'PUT':
+        return actualizar_perfil(request, id)
+
+    if request.method == 'PATCH':
+        return modificar_perfil(request, id)
+
+    if request.method == 'DELETE':
+        return eliminar_perfil(request, id)
 
     try:
         candidato = Candidato.objects.get(id=id)
@@ -125,7 +137,4 @@ def eliminar_perfil(request, id):
 
     candidato.delete()
 
-    return Response(
-        {'mensaje': 'Perfil eliminado correctamente'},
-        status=status.HTTP_204_NO_CONTENT
-    )
+    return Response(status=status.HTTP_204_NO_CONTENT)

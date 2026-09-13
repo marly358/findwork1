@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import Usuario
+from .serializers import UsuarioSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -13,49 +14,23 @@ def usuarios(request):
     # =========================
     if request.method == 'GET':
         usuarios = Usuario.objects.all()
-
-        datos = []
-
-        for usuario in usuarios:
-            datos.append({
-                'id': usuario.id,
-                'nombre': usuario.nombre,
-                'email': usuario.email,
-                'rol': usuario.rol_id,
-                'activo': usuario.activo,
-                'fechaRegistro': usuario.fechaRegistro
-            })
-
-        return Response(datos)
+        serializer = UsuarioSerializer(usuarios, many=True)
+        return Response(serializer.data)
 
     # =========================
     # POST - CREAR USUARIO
     # =========================
     if request.method == 'POST':
+        serializer = UsuarioSerializer(data=request.data)
 
-        usuario = Usuario.objects.create(
-            nombre=request.data.get('nombre'),
-            email=request.data.get('email'),
-            passwordHash=request.data.get('passwordHash'),
-            rol_id=request.data.get('rol'),
-            activo=request.data.get('activo', True),
-            fechaRegistro=request.data.get('fechaRegistro')
-        )
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({
-            'mensaje': 'Usuario creado correctamente',
-            'usuario': {
-                'id': usuario.id,
-                'nombre': usuario.nombre,
-                'email': usuario.email,
-                'rol': usuario.rol_id,
-                'activo': usuario.activo,
-                'fechaRegistro': usuario.fechaRegistro
-            }
-        }, status=status.HTTP_201_CREATED)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@api_view(['GET', 'PATCH', 'DELETE'])
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def usuario_detalle(request, id):
 
     # Buscar usuario
@@ -82,9 +57,19 @@ def usuario_detalle(request, id):
         })
 
     # =========================
-    # PATCH - ACTUALIZAR USUARIO
+    # PUT/PATCH - ACTUALIZAR USUARIO
     # =========================
-    if request.method == 'PATCH':
+    if request.method in ('PUT', 'PATCH'):
+
+        if request.method == 'PUT':
+            campos_requeridos = ('nombre', 'email', 'passwordHash', 'rol', 'activo', 'fechaRegistro')
+            campos_faltantes = [campo for campo in campos_requeridos if campo not in request.data]
+
+            if campos_faltantes:
+                return Response(
+                    {'error': 'Faltan campos requeridos', 'campos': campos_faltantes},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
         if 'nombre' in request.data:
             usuario.nombre = request.data['nombre']
@@ -125,7 +110,4 @@ def usuario_detalle(request, id):
 
         usuario.delete()
 
-        return Response(
-            {'mensaje': 'Usuario eliminado correctamente'},
-            status=status.HTTP_204_NO_CONTENT
-        )
+        return Response(status=status.HTTP_204_NO_CONTENT)

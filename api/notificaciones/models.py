@@ -1,3 +1,4 @@
+
 from django.db import models
 
 
@@ -17,8 +18,8 @@ class Notificacion(models.Model):
     )
 
     class Meta:
-        db_table = 'notificacion'
-        managed = False
+        db_table = 'notificaciones'
 
     def __str__(self):
         return f"Notificación {self.id}"
+

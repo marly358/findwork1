@@ -6,6 +6,94 @@ from .models import Notificacion
 from .serializers import NotificacionSerializer
 
 
+@api_view(['GET'])
+def listar_notificaciones(request):
+    notificaciones = Notificacion.objects.all()
+    serializer = NotificacionSerializer(notificaciones, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+def crear_notificacion(request):
+    serializer = NotificacionSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def obtener_notificacion(request, id):
+    try:
+        notificacion = Notificacion.objects.get(id=id)
+    except Notificacion.DoesNotExist:
+        return Response(
+            {'error': 'Notificación no encontrada'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    serializer = NotificacionSerializer(notificacion)
+    return Response(serializer.data)
+
+
+@api_view(['PUT'])
+def actualizar_notificacion(request, id):
+    try:
+        notificacion = Notificacion.objects.get(id=id)
+    except Notificacion.DoesNotExist:
+        return Response(
+            {'error': 'Notificación no encontrada'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    serializer = NotificacionSerializer(notificacion, data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['PATCH'])
+def modificar_notificacion(request, id):
+    try:
+        notificacion = Notificacion.objects.get(id=id)
+    except Notificacion.DoesNotExist:
+        return Response(
+            {'error': 'Notificación no encontrada'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    serializer = NotificacionSerializer(
+        notificacion,
+        data=request.data,
+        partial=True
+    )
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+def eliminar_notificacion(request, id):
+    try:
+        notificacion = Notificacion.objects.get(id=id)
+    except Notificacion.DoesNotExist:
+        return Response(
+            {'error': 'Notificación no encontrada'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    notificacion.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 @api_view(['GET', 'POST'])
 def notificaciones(request):
 
@@ -86,7 +174,4 @@ def notificacion_detalle(request, id):
     if request.method == 'DELETE':
         notificacion.delete()
 
-        return Response(
-            {'mensaje': 'Notificación eliminada correctamente'},
-            status=status.HTTP_204_NO_CONTENT
-        )
+        return Response(status=status.HTTP_204_NO_CONTENT)

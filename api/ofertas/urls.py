@@ -16,7 +16,7 @@ urlpatterns = [
     path('', listar_ofertas),
     path('crear/', crear_oferta),
 
-    # GET por ID
+    # GET, PUT, PATCH y DELETE por ID
     path('<int:id>/', obtener_oferta),
 
     # PUT

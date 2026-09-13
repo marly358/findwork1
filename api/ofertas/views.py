@@ -7,8 +7,11 @@ from .serializers import OfertaLaboralSerializer
 
 
 # GET - Listar todas las ofertas
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def listar_ofertas(request):
+
+    if request.method == 'POST':
+        return crear_oferta(request)
 
     ofertas = OfertaLaboral.objects.all()
 
@@ -18,8 +21,17 @@ def listar_ofertas(request):
 
 
 # GET - Obtener una oferta por ID
-@api_view(['GET'])
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def obtener_oferta(request, id):
+
+    if request.method == 'PUT':
+        return actualizar_oferta(request, id)
+
+    if request.method == 'PATCH':
+        return modificar_oferta(request, id)
+
+    if request.method == 'DELETE':
+        return eliminar_oferta(request, id)
 
     try:
         oferta = OfertaLaboral.objects.get(id=id)
@@ -125,7 +137,4 @@ def eliminar_oferta(request, id):
 
     oferta.delete()
 
-    return Response(
-        {'mensaje': 'Oferta eliminada correctamente'},
-        status=status.HTTP_204_NO_CONTENT
-    )
+    return Response(status=status.HTTP_204_NO_CONTENT)

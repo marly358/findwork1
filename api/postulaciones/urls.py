@@ -18,7 +18,7 @@ urlpatterns = [
     # POST - crear
     path('crear/', crear_postulacion),
 
-    # GET - obtener por ID
+    # GET, PUT, PATCH y DELETE por ID
     path('<int:id>/', obtener_postulacion),
 
     # PUT

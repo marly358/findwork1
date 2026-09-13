@@ -7,8 +7,11 @@ from .serializers import PostulacionSerializer
 
 
 # GET - Listar todas las postulaciones
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def listar_postulaciones(request):
+
+    if request.method == 'POST':
+        return crear_postulacion(request)
 
     postulaciones = Postulacion.objects.all()
 
@@ -21,8 +24,17 @@ def listar_postulaciones(request):
 
 
 # GET - Obtener una postulación por ID
-@api_view(['GET'])
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def obtener_postulacion(request, id):
+
+    if request.method == 'PUT':
+        return actualizar_postulacion(request, id)
+
+    if request.method == 'PATCH':
+        return modificar_postulacion(request, id)
+
+    if request.method == 'DELETE':
+        return eliminar_postulacion(request, id)
 
     try:
         postulacion = Postulacion.objects.get(id=id)
@@ -132,7 +144,4 @@ def eliminar_postulacion(request, id):
 
     postulacion.delete()
 
-    return Response(
-        {'mensaje': 'Postulación eliminada correctamente'},
-        status=status.HTTP_204_NO_CONTENT
-    )
+    return Response(status=status.HTTP_204_NO_CONTENT)

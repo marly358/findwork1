@@ -13,3 +13,4 @@ class CandidatoSerializer(serializers.ModelSerializer):
             'universidad',
             'descripcion'
         ]
+        read_only_fields = ['id']

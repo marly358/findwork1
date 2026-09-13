@@ -91,7 +91,4 @@ def hoja_de_vida_detalle(request, id):
     if request.method == 'DELETE':
         hoja.delete()
 
-        return Response(
-            {'mensaje': 'Hoja de vida eliminada correctamente'},
-            status=status.HTTP_204_NO_CONTENT
-        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
